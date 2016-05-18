@@ -17,12 +17,12 @@
 ################################################################################
 
 PKG_NAME="mesa"
-PKG_VERSION="11.2.0-rc3"
+PKG_VERSION="11.2.2"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="OSS"
 PKG_SITE="http://www.mesa3d.org/"
-PKG_URL="ftp://freedesktop.org/pub/mesa/11.2.0/$PKG_NAME-$PKG_VERSION.tar.xz"
+PKG_URL="ftp://freedesktop.org/pub/mesa/$PKG_VERSION/$PKG_NAME-$PKG_VERSION.tar.xz"
 PKG_DEPENDS_TARGET="toolchain Python:host expat glproto dri2proto presentproto libdrm libXext libXdamage libXfixes libXxf86vm libxcb libX11 systemd dri3proto libxshmfence libressl"
 PKG_PRIORITY="optional"
 PKG_SECTION="graphics"
@@ -55,6 +55,12 @@ for drv in $GRAPHIC_DRIVERS; do
   [ "$drv" = "vmware" ] && XA_CONFIG="--enable-xa"
 done
 
+if [ "$OPENGLES_SUPPORT" = "yes" ]; then
+  MESA_GLES="--enable-gles2"
+else
+  MESA_GLES="--disable-gles2"
+fi
+ 
 PKG_CONFIGURE_OPTS_TARGET="CC_FOR_BUILD=$HOST_CC \
                            CXX_FOR_BUILD=$HOST_CXX \
                            CFLAGS_FOR_BUILD= \
@@ -70,9 +76,9 @@ PKG_CONFIGURE_OPTS_TARGET="CC_FOR_BUILD=$HOST_CC \
                            --disable-selinux \
                            --enable-opengl \
                            --disable-gles1 \
-                           --disable-gles2 \
+                           $MESA_GLES \
                            --enable-dri \
-                           --disable-dri3 \
+                           --enable-dri3 \
                            --enable-glx \
                            --disable-osmesa \
                            --disable-gallium-osmesa \
@@ -101,6 +107,10 @@ PKG_CONFIGURE_OPTS_TARGET="CC_FOR_BUILD=$HOST_CC \
                            --with-gallium-drivers=$GALLIUM_DRIVERS \
                            --with-dri-drivers=$DRI_DRIVERS \
                            --with-sysroot=$SYSROOT_PREFIX"
+
+pre_configure_target() {
+  export LIBS="-lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence"
+}
 
 post_makeinstall_target() {
   # rename and relink for cooperate with nvidia drivers

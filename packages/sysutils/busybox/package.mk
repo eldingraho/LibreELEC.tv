@@ -24,7 +24,7 @@ PKG_LICENSE="GPL"
 PKG_SITE="http://www.busybox.net"
 PKG_URL="http://busybox.net/downloads/$PKG_NAME-$PKG_VERSION.tar.bz2"
 PKG_DEPENDS_HOST=""
-PKG_DEPENDS_TARGET="toolchain busybox:host hdparm dosfstools e2fsprogs zip unzip pciutils usbutils parted"
+PKG_DEPENDS_TARGET="toolchain busybox:host hdparm dosfstools e2fsprogs zip unzip pciutils usbutils parted procps-ng"
 PKG_DEPENDS_INIT="toolchain"
 PKG_PRIORITY="required"
 PKG_SECTION="system"
@@ -168,6 +168,8 @@ makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libreelec
     cp $PKG_DIR/scripts/functions $INSTALL/usr/lib/libreelec
     cp $PKG_DIR/scripts/fs-resize $INSTALL/usr/lib/libreelec
+    sed -e "s/@DISTRONAME@/$DISTRONAME/g" \
+        -i $INSTALL/usr/lib/libreelec/fs-resize
 
   mkdir -p $INSTALL/etc
     cp $PKG_DIR/config/profile $INSTALL/etc
@@ -182,7 +184,7 @@ makeinstall_target() {
     touch $INSTALL/etc/fstab
 
   # /etc/machine-id, needed by systemd and dbus
-    ln -sf /run/machine-id $INSTALL/etc/machine-id
+    ln -sf /storage/.cache/machine-id $INSTALL/etc/machine-id
 
   # /etc/mtab is needed by udisks etc...
     ln -sf /proc/self/mounts $INSTALL/etc/mtab
@@ -250,5 +252,7 @@ makeinstall_init() {
 
   cp $PKG_DIR/scripts/functions $INSTALL
   cp $PKG_DIR/scripts/init $INSTALL
+  sed -e "s/@DISTRONAME@/$DISTRONAME/g" \
+      -i $INSTALL/init
   chmod 755 $INSTALL/init
 }

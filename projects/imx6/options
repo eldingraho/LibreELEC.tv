@@ -43,7 +43,6 @@
   # Configuration for u-boot
     UBOOT_CONFIG="mx6_cubox-i_config"
     UBOOT_CONFIG="$UBOOT_CONFIG matrix"
-    UBOOT_CONFIG="$UBOOT_CONFIG udoo_config"
 
   # Target Configfile for u-boot
     UBOOT_CONFIGFILE=""
@@ -63,12 +62,12 @@
   # Additional kernel make parameters (for example to specify the u-boot loadaddress)
     KERNEL_MAKE_EXTRACMD=""
 
-  # Kernel to use. values can be:
-  # default:  default mainline kernel
-    if [ -z "$LINUX_VERSION" ]; then
-      LINUX="imx6"
-    else
+  # Kernel to use.
+  # default is 4.4 from xbian
+    if [ -z "$LINUX_VERSION" -o "$LINUX_VERSION" != "sr-3.14" ]; then
       LINUX="imx6-4.4-xbian"
+    else
+      LINUX="imx6"
     fi
 
 
@@ -130,10 +129,14 @@
     INITRAMFS_MODULES=""
 
   # additional drivers to install:
-  # for a list of additinoal drivers see packages/linux-drivers
+  # for a list of additional drivers see packages/linux-drivers
   # Space separated list is supported,
   # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
-    ADDITIONAL_DRIVERS="RTL8192CU RTL8192DU RTL8188EU dvbhdhomerun"
+    if [ "$LINUX" = "imx6" ]; then
+      ADDITIONAL_DRIVERS="RTL8192CU RTL8192DU RTL8188EU dvbhdhomerun"
+    else
+      ADDITIONAL_DRIVERS="$ADDITIONAL_DRIVERS"
+    fi
 
   # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
   # Space separated list is supported,
